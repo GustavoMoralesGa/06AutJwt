@@ -12,15 +12,18 @@ const pool = new Pool({
 })
 
 const registerUser = async (user) => {
-  const { email, password } = user
-  const encryptedPassword = bcrypt.hashSync(password);
-  const consulta = 'INSERT INTO usuarios VALUES (DEFAULT, $1, $2)'
-  await pool.query(consulta, [email, encryptedPassword])
+  console.log(user);
+  const { email, password, rol, lenguage } = user
+  const encryptedPassword = bcrypt.hashSync(password)
+  const consulta = 'INSERT INTO usuarios VALUES (DEFAULT, $1, $2, $3, $4)'
+  const result = await pool.query(consulta, [email, encryptedPassword, rol, lenguage])
+  console.log(result)
+  return result;
 }
 
 const checkCredentials = async (email, password) => {
   const values = [email];
-  const consulta = 'SELECT * FROM usuarios WHERE email = $1';
+  const consulta = 'SELECT email, password FROM usuarios WHERE email = $1';
   const { rows: [usuario], rowCount }  = await pool.query(consulta, values);
   const { password: encryptedPassword } = usuario;
   const isCorrectPassword = bcrypt.compareSync(password, encryptedPassword);
@@ -30,8 +33,8 @@ const checkCredentials = async (email, password) => {
 
 const getUsers = async (email) => {
   const values = [email]
-  const consulta = 'SELECT * FROM usuarios WHERE email = $1'
-  const { rows: user} = await pool.query(consulta, values)
+  const consulta = 'SELECT id, email, rol, lenguage FROM usuarios WHERE email = $1'
+  const { rows: user } = await pool.query(consulta, values)
   return user
 }
 
